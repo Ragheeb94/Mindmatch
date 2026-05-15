@@ -16,22 +16,33 @@ export function parseCrpoResponse(html: string): CrpoResult {
 }
 
 export async function verifyCrpoLicense(licenseNumber: string): Promise<CrpoResult> {
-  const url = 'https://www.crpo.ca/find-a-registrant/'
+  const sanitized = licenseNumber.trim()
+  if (!/^[A-Za-z0-9\-]{1,20}$/.test(sanitized)) return 'rejected'
 
-  const formData = new URLSearchParams()
-  formData.append('registration_number', licenseNumber)
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'Mozilla/5.0 (compatible; MindMatch/1.0)',
-    },
-    body: formData.toString(),
-  })
+  try {
+    const formData = new URLSearchParams()
+    formData.append('registration_number', sanitized)
 
-  if (!response.ok) return 'rejected'
+    const response = await fetch('https://www.crpo.ca/find-a-registrant/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (compatible; MindMatch/1.0)',
+      },
+      body: formData.toString(),
+      signal: controller.signal,
+    })
 
-  const html = await response.text()
-  return parseCrpoResponse(html)
+    if (!response.ok) return 'rejected'
+
+    const html = await response.text()
+    return parseCrpoResponse(html)
+  } catch {
+    return 'rejected'
+  } finally {
+    clearTimeout(timeout)
+  }
 }

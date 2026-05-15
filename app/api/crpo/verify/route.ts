@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyCrpoLicense } from '@/lib/crpo'
 
 export async function POST(req: NextRequest) {
-  const body = await req.json()
-  const { licenseNumber, therapistId } = body
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const { licenseNumber, therapistId } = body as Record<string, unknown>
 
   if (!licenseNumber || typeof licenseNumber !== 'string') {
     return NextResponse.json({ error: 'licenseNumber required' }, { status: 400 })
