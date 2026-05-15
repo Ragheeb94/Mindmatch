@@ -27,9 +27,10 @@ export default async function TherapistProfilePage({ params }: Props) {
 
   return (
     <main>
-      <div className="max-w-md mx-auto px-4 py-4">
+      <header className="max-w-md mx-auto bg-white border-b border-gray-100 px-4 py-4 flex items-center gap-3">
         <a href="/discover" className="text-blue-500 text-sm font-semibold">← Back</a>
-      </div>
+        <span className="text-gray-800 font-semibold text-sm truncate">{name}</span>
+      </header>
       <FullProfile therapist={profile as unknown as TherapistProfile} therapistName={name} />
     </main>
   )

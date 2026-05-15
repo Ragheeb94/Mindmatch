@@ -1,5 +1,9 @@
+import { TherapistPortalNav } from '@/components/ui/TherapistPortalNav'
+
 export default function SubscriptionPage() {
   return (
+    <>
+      <TherapistPortalNav />
     <main className="max-w-md mx-auto p-6 min-h-screen flex flex-col items-center justify-center gap-6">
       <div className="text-center">
         <h1 className="text-2xl font-bold text-gray-900">Subscription Coming Soon</h1>
@@ -24,5 +28,6 @@ export default function SubscriptionPage() {
         Go to Dashboard
       </a>
     </main>
+    </>
   )
 }

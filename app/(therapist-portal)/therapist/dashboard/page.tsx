@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ProfileFormClient } from './ProfileFormClient'
+import { TherapistPortalNav } from '@/components/ui/TherapistPortalNav'
 
 export default async function TherapistDashboardPage() {
   const supabase = await createClient()
@@ -28,6 +29,8 @@ export default async function TherapistDashboardPage() {
   }[profile.crpo_status as string] ?? 'Unknown'
 
   return (
+    <>
+      <TherapistPortalNav />
     <main className="max-w-md mx-auto p-6 min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Your Profile</h1>
@@ -44,5 +47,6 @@ export default async function TherapistDashboardPage() {
 
       <ProfileFormClient profile={profile as unknown as Record<string, unknown>} />
     </main>
+    </>
   )
 }

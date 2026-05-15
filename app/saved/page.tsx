@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/Badge'
+import { BottomNav } from '@/components/ui/BottomNav'
 
 export default async function SavedPage() {
   const supabase = await createClient()
@@ -27,11 +28,9 @@ export default async function SavedPage() {
   }).filter(Boolean) as any[]
 
   return (
-    <main className="max-w-md mx-auto min-h-screen bg-blue-50">
-      <header className="bg-blue-500 px-6 py-4 flex justify-between items-center">
-        <a href="/discover" className="text-white/80 text-sm">← Back</a>
+    <main className="max-w-md mx-auto min-h-screen bg-blue-50 pb-20">
+      <header className="bg-blue-500 px-6 py-4 flex items-center justify-center">
         <span className="text-white font-bold text-lg">Saved</span>
-        <div className="w-12" />
       </header>
 
       <div className="p-4 flex flex-col gap-3">
@@ -71,6 +70,7 @@ export default async function SavedPage() {
           )
         })}
       </div>
+      <BottomNav />
     </main>
   )
 }
