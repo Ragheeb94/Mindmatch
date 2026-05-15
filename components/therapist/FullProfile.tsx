@@ -85,7 +85,7 @@ export function FullProfile({ therapist, therapistName }: FullProfileProps) {
 
         <a
           href={therapist.contact_email ? `mailto:${therapist.contact_email}` : '#'}
-          className="block w-full bg-blue-500 text-white text-center font-bold py-3 rounded-xl"
+          className="press-scale block w-full bg-blue-500 text-white text-center font-bold py-3 rounded-xl"
         >
           Contact {therapistName.split(' ')[0]}
         </a>

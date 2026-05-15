@@ -8,7 +8,7 @@ interface ActionButtonsProps {
 }
 
 export function ActionButtons({ onSkip, onInfo, onSave, disabled }: ActionButtonsProps) {
-  const btnBase = 'w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold transition-transform active:scale-90 disabled:opacity-40'
+  const btnBase = 'w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold disabled:opacity-40 press-scale'
 
   return (
     <div className="flex justify-center items-center gap-4">
