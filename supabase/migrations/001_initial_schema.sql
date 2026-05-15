@@ -1,6 +1,3 @@
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
-
 -- Users (extends Supabase auth.users)
 create table public.users (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -23,7 +20,7 @@ create policy "Insert on signup" on public.users
 
 -- Therapist profiles
 create table public.therapist_profiles (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   license_number text not null unique,
   crpo_status text not null default 'pending' check (crpo_status in ('verified', 'pending', 'rejected')),
@@ -62,7 +59,7 @@ create policy "Therapist can insert own profile" on public.therapist_profiles
 
 -- Client surveys
 create table public.client_surveys (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   answers jsonb not null,
   completed_at timestamptz default now(),
@@ -82,7 +79,7 @@ create policy "Client can update own survey" on public.client_surveys
 
 -- Swipe history
 create table public.swipe_history (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   client_id uuid not null references public.users(id) on delete cascade,
   therapist_id uuid not null references public.therapist_profiles(id) on delete cascade,
   action text not null check (action in ('skip', 'save')),
