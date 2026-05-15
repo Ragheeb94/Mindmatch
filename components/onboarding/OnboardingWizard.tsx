@@ -55,6 +55,14 @@ export function OnboardingWizard() {
     setStep(s => Math.min(s + 1, TOTAL_STEPS))
   }
 
+  function back() {
+    if (step === 1) {
+      router.push('/')
+    } else {
+      setStep(s => s - 1)
+    }
+  }
+
   async function finish(email: string, password: string) {
     setSaving(true)
     setError(null)
@@ -117,7 +125,13 @@ export function OnboardingWizard() {
     <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
       <div className="bg-blue-500 px-6 pt-6 pb-0">
         <div className="flex justify-between items-center mb-3">
-          <span className="text-white font-bold text-lg">Mind Match</span>
+          <button
+            onClick={back}
+            className="text-white/80 text-sm flex items-center gap-1 hover:text-white transition-colors"
+            aria-label="Go back"
+          >
+            ← Back
+          </button>
           <span className="text-white/80 text-sm">Step {step} of {TOTAL_STEPS}</span>
         </div>
         <ProgressBar current={step} total={TOTAL_STEPS} />
