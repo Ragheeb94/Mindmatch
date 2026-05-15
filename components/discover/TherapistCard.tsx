@@ -4,18 +4,24 @@ import type { TherapistProfile } from '@/lib/types'
 
 interface TherapistCardProps {
   therapist: TherapistProfile
+  therapistName?: string
 }
 
-export function TherapistCard({ therapist }: TherapistCardProps) {
+export function TherapistCard({ therapist, therapistName }: TherapistCardProps) {
   const photo = therapist.photo_url ??
     'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=600&q=80'
+
+  const name = therapistName ?? 'Registered Psychotherapist'
+  const credential = therapist.years_experience
+    ? `Registered Psychotherapist · ${therapist.years_experience} yrs`
+    : 'Registered Psychotherapist'
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-lg">
       <div className="relative h-72">
         <Image
           src={photo}
-          alt={`Photo of therapist`}
+          alt={`Photo of ${name}`}
           fill
           className="object-cover"
           sizes="(max-width: 448px) 100vw, 448px"
@@ -25,8 +31,8 @@ export function TherapistCard({ therapist }: TherapistCardProps) {
           <Badge label="✓ CRPO" variant="blue" className="bg-blue-500 text-white" />
         </div>
         <div className="absolute bottom-0 left-0 p-4 text-white">
-          <p className="font-bold text-lg leading-tight">{therapist.bio?.split('.')[0] ?? 'Registered Psychotherapist'}</p>
-          <p className="text-white/80 text-sm mt-0.5">{therapist.city}, ON</p>
+          <p className="font-bold text-lg leading-tight">{name}</p>
+          <p className="text-white/80 text-sm mt-0.5">{credential} · {therapist.city}, ON</p>
         </div>
       </div>
       <div className="p-4">

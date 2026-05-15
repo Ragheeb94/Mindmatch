@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import toast, { Toaster } from 'react-hot-toast'
 import { TherapistCard } from './TherapistCard'
 import { ActionButtons } from './ActionButtons'
 import { createClient } from '@/lib/supabase/client'
@@ -39,6 +40,12 @@ export function SwipeDeck() {
     })
 
     if (error) console.error('swipe_history upsert failed', error)
+
+    if (action === 'save') {
+      const name = (current as any).displayName ?? 'Therapist'
+      toast.success(`${name} saved!`, { duration: 2000 })
+    }
+
     setIndex(i => i + 1)
   }
 
@@ -66,18 +73,24 @@ export function SwipeDeck() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Link href={`/therapist/${current.id}`}>
-        <TherapistCard therapist={current} />
-      </Link>
-      <ActionButtons
-        onSkip={() => recordSwipe('skip')}
-        onInfo={() => router.push(`/therapist/${current.id}`)}
-        onSave={() => recordSwipe('save')}
-      />
-      <p className="text-center text-xs text-gray-400">
-        {therapists.length - index - 1} more matches
-      </p>
-    </div>
+    <>
+      <Toaster position="top-center" />
+      <div className="flex flex-col gap-4">
+        <Link href={`/therapist/${current.id}`}>
+          <TherapistCard
+            therapist={current}
+            therapistName={(current as any).displayName}
+          />
+        </Link>
+        <ActionButtons
+          onSkip={() => recordSwipe('skip')}
+          onInfo={() => router.push(`/therapist/${current.id}`)}
+          onSave={() => recordSwipe('save')}
+        />
+        <p className="text-center text-xs text-gray-400">
+          {therapists.length - index - 1} more matches
+        </p>
+      </div>
+    </>
   )
 }

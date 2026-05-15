@@ -29,18 +29,29 @@ export async function GET() {
 
   const { data: therapists, error: therapistsError } = await supabase
     .from('therapist_profiles')
-    .select('*')
+    .select('*, users(first_name, last_name)')
     .eq('is_active', true)
     .eq('crpo_status', 'verified')
 
   if (therapistsError) console.error('therapist_profiles fetch failed', therapistsError)
 
-  const unseen = (therapists ?? []).filter(t => !seenIds.has(t.id)) as TherapistProfile[]
+  const unseen = (therapists ?? []).filter(t => !seenIds.has(t.id))
 
   try {
     // jsonb returned as Json type from Supabase, runtime shape matches SurveyAnswers
-    const ranked = rankTherapists(surveyRow.answers as unknown as SurveyAnswers, unseen)
-    return NextResponse.json({ therapists: ranked })
+    const ranked = rankTherapists(surveyRow.answers as unknown as SurveyAnswers, unseen as unknown as TherapistProfile[])
+
+    // Attach display name to each therapist
+    const withNames = ranked.map(t => {
+      const raw = unseen.find(u => u.id === t.id)
+      const user = raw?.users as { first_name: string; last_name: string | null } | null
+      const displayName = user
+        ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`
+        : 'Registered Psychotherapist'
+      return { ...t, displayName }
+    })
+
+    return NextResponse.json({ therapists: withNames })
   } catch {
     return NextResponse.json({ error: 'Matching failed' }, { status: 500 })
   }

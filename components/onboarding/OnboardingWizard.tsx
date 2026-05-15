@@ -44,6 +44,7 @@ export function OnboardingWizard() {
   const [answers, setAnswers] = useState<SurveyAnswers>(defaultAnswers)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmed, setConfirmed] = useState(false)
   const router = useRouter()
 
   function update<K extends keyof SurveyAnswers>(key: K, value: SurveyAnswers[K]) {
@@ -83,10 +84,34 @@ export function OnboardingWizard() {
       answers: answers as unknown as Json,
     })
 
-    router.push('/discover')
+    if (data.session) {
+      router.push('/discover')
+    } else {
+      setConfirmed(true)
+      setSaving(false)
+    }
   }
 
   const stepProps = { answers, update, onNext: next }
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center max-w-md mx-auto px-6 text-center gap-6">
+        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-3xl">
+          📬
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Check your email</h1>
+          <p className="text-gray-500 text-sm mt-2">
+            We sent a confirmation link to your email. Click it and you&apos;ll be taken to your matches.
+          </p>
+        </div>
+        <p className="text-xs text-gray-400">
+          You can close this tab — just click the link in your email when you&apos;re ready.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
