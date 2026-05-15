@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyCrpoLicense } from '@/lib/crpo'
+import { createServiceClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   let body: unknown
@@ -21,7 +22,11 @@ export async function POST(req: NextRequest) {
 
   const result = await verifyCrpoLicense(licenseNumber.trim())
 
-  // Supabase update will be wired in Task 3 when the server client is available
-  // For now return the result — the caller can handle the update
-  return NextResponse.json({ status: result, therapistId })
+  const supabase = await createServiceClient()
+  await supabase
+    .from('therapist_profiles')
+    .update({ crpo_status: result })
+    .eq('id', therapistId)
+
+  return NextResponse.json({ status: result })
 }
