@@ -106,4 +106,16 @@ describe('rankTherapists', () => {
     const ranked = rankTherapists(survey, [otherCity])
     expect(ranked).toHaveLength(1)
   })
+
+  it('excludes in-person-only therapists from other cities when survey is both', () => {
+    const survey = { ...baseSurvey, session_type: 'both' as const }
+    const inPersonOtherCity = {
+      ...baseTherapist,
+      id: '3',
+      city: 'Ottawa',
+      session_type: 'in_person' as const,
+    }
+    const ranked = rankTherapists(survey, [inPersonOtherCity])
+    expect(ranked).toHaveLength(0)
+  })
 })

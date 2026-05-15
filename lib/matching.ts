@@ -65,9 +65,18 @@ export function scoreTherapist(
 }
 
 function passesHardFilters(survey: SurveyAnswers, therapist: TherapistProfile): boolean {
-  if (survey.session_type === 'in_person') {
+  if (survey.session_type === 'online') {
+    // Client wants only online: exclude in-person-only therapists
+    if (therapist.session_type === 'in_person') return false
+  } else if (survey.session_type === 'in_person') {
+    // Client wants only in-person: exclude online-only and other cities
     if (therapist.session_type === 'online') return false
     if (therapist.city.toLowerCase() !== survey.city.toLowerCase()) return false
+  } else {
+    // Client is open to both: in-person-only therapists must be in same city
+    if (therapist.session_type === 'in_person') {
+      if (therapist.city.toLowerCase() !== survey.city.toLowerCase()) return false
+    }
   }
   return true
 }
