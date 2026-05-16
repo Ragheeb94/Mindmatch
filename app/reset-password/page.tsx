@@ -2,43 +2,45 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { MindMatchLogo } from '@/components/ui/MindMatchLogo'
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (password !== confirm) {
+      setError('Passwords do not match.')
+      return
+    }
     setLoading(true)
     setError(null)
 
     const supabase = createClient()
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+    const { error: updateError } = await supabase.auth.updateUser({ password })
 
-    if (signInError || !data.user) {
-      setError(signInError?.message ?? 'Sign in failed. Please try again.')
+    if (updateError) {
+      setError(updateError.message)
       setLoading(false)
       return
     }
 
-    // Look up role to redirect correctly
-    const { data: userRow } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    const role = userRow?.role
-    if (role === 'therapist') {
-      router.push('/therapist/dashboard')
+    // Role-based redirect after reset
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: userRow } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      router.push(userRow?.role === 'therapist' ? '/therapist/dashboard' : '/discover')
     } else {
-      router.push('/discover')
+      router.push('/login')
     }
   }
 
@@ -49,8 +51,8 @@ export default function LoginPage() {
           <MindMatchLogo size={36} />
           <span className="font-bold text-gray-900 text-base">Mind Match</span>
         </div>
-        <h1 className="text-[1.75rem] font-bold text-gray-900 leading-tight">Welcome back</h1>
-        <p className="text-gray-500 text-base mt-2">Sign in to your account.</p>
+        <h1 className="text-[1.75rem] font-bold text-gray-900 leading-tight">Choose a new password</h1>
+        <p className="text-gray-500 text-base mt-2">At least 8 characters.</p>
       </header>
 
       <div className="flex-1 px-6 py-8">
@@ -60,53 +62,43 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label htmlFor="login-email" className="text-sm font-semibold text-gray-700">Email address</label>
+            <label htmlFor="new-password" className="text-sm font-semibold text-gray-700">New password</label>
             <input
-              id="login-email"
-              type="email"
+              id="new-password"
+              type="password"
               required
-              placeholder="you@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              autoComplete="email"
+              placeholder="At least 8 characters"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              autoComplete="new-password"
               className="w-full rounded-2xl border-2 border-gray-200 px-5 py-4 text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none transition-colors"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-            <label htmlFor="login-password" className="text-sm font-semibold text-gray-700">Password</label>
-            <Link href="/forgot-password" className="text-sm text-blue-600 font-semibold">Forgot password?</Link>
-          </div>
+            <label htmlFor="confirm-password" className="text-sm font-semibold text-gray-700">Confirm password</label>
             <input
-              id="login-password"
+              id="confirm-password"
               type="password"
               required
-              placeholder="Your password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              autoComplete="current-password"
+              placeholder="Same password again"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              autoComplete="new-password"
               className="w-full rounded-2xl border-2 border-gray-200 px-5 py-4 text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
-            disabled={!email || !password || loading}
+            disabled={password.length < 8 || !confirm || loading}
             className="press-scale w-full bg-blue-600 text-white font-bold py-4 rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 mt-2"
           >
-            {loading ? 'Signing in…' : 'Sign in →'}
+            {loading ? 'Saving…' : 'Set new password →'}
           </button>
         </form>
-
-        <div className="mt-8 text-center flex flex-col gap-2">
-          <p className="text-sm text-gray-500">
-            Don&apos;t have an account?{' '}
-            <Link href="/" className="text-blue-600 font-semibold">Get started</Link>
-          </p>
-        </div>
       </div>
     </div>
   )
