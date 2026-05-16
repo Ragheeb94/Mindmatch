@@ -3,15 +3,31 @@
 import { useState, useEffect } from 'react'
 import { MindMatchLogo } from './MindMatchLogo'
 
+const SESSION_KEY = 'mm_splash_shown'
+const DURATION = 3500
+const FADE_DURATION = 400
+
 export function SplashScreen() {
-  const [gone, setGone] = useState(false)
+  // Start as null so we don't flash the splash for returning users
+  const [visible, setVisible] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const t = setTimeout(() => setGone(true), 2300)
+    const alreadyShown = sessionStorage.getItem(SESSION_KEY)
+    if (alreadyShown) {
+      setVisible(false)
+      return
+    }
+
+    // First visit this session — show splash
+    sessionStorage.setItem(SESSION_KEY, '1')
+    setVisible(true)
+
+    const t = setTimeout(() => setVisible(false), DURATION + FADE_DURATION)
     return () => clearTimeout(t)
   }, [])
 
-  if (gone) return null
+  // Not yet determined (SSR) or already shown — render nothing
+  if (!visible) return null
 
   return (
     <div className="splash-out fixed inset-0 z-50 bg-white flex flex-col items-center justify-center gap-4">
