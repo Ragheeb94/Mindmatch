@@ -10,16 +10,23 @@ interface Props {
 
 export function NameStep({ answers, update, onNext }: Props) {
   return (
-    <div className="flex flex-col gap-4">
-      <input
-        type="text"
-        value={answers.name}
-        onChange={e => update('name', e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && answers.name.trim() && onNext()}
-        placeholder="Your first name"
-        className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-blue-500 outline-none bg-white"
-        autoFocus
-      />
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="first-name" className="text-sm font-semibold text-gray-700">
+          First name
+        </label>
+        <input
+          id="first-name"
+          type="text"
+          value={answers.name}
+          onChange={e => update('name', e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && answers.name.trim() && onNext()}
+          placeholder="e.g. Alex"
+          autoComplete="given-name"
+          className="w-full rounded-2xl border-2 border-gray-200 px-5 py-4 text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none transition-colors"
+          autoFocus
+        />
+      </div>
       <Button fullWidth onClick={onNext} disabled={!answers.name.trim()}>
         Continue →
       </Button>

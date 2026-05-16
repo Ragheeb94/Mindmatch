@@ -27,7 +27,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Press feedback on all interactive cards and buttons */
+/* Press feedback */
 .press-scale {
   transition: transform 160ms var(--ease-out);
 }
@@ -35,35 +35,36 @@ body {
   transform: scale(0.97);
 }
 
-/* Page entry stagger animations */
+/* Splash screen fade out */
+@keyframes splashOut {
+  0%, 65% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.splash-out {
+  animation: splashOut 2.2s var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+/* Page entry stagger */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
-  animation: fadeUp 400ms var(--ease-out) both;
+  animation: fadeUp 500ms var(--ease-out) both;
 }
-
 .animate-fade-up-delay-1 {
-  animation: fadeUp 400ms 80ms var(--ease-out) both;
+  animation: fadeUp 500ms 100ms var(--ease-out) both;
 }
-
 .animate-fade-up-delay-2 {
-  animation: fadeUp 400ms 160ms var(--ease-out) both;
+  animation: fadeUp 500ms 200ms var(--ease-out) both;
 }
-
 .animate-fade-up-delay-3 {
-  animation: fadeUp 400ms 240ms var(--ease-out) both;
+  animation: fadeUp 500ms 300ms var(--ease-out) both;
 }
 
-/* Reduce motion: keep opacity, remove movement */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
   .animate-fade-up-delay-1,
@@ -72,10 +73,13 @@ body {
     animation: none;
     opacity: 1;
   }
-
   .press-scale,
   .press-scale:active {
     transform: none;
     transition: none;
+  }
+  .splash-out {
+    animation: none;
+    opacity: 0;
   }
 }

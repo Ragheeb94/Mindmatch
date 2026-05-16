@@ -16,10 +16,12 @@ export function Button({
   return (
     <button
       className={cn(
-        'rounded-xl px-4 py-3 font-semibold text-sm transition-opacity disabled:opacity-50',
-        variant === 'primary' && 'bg-blue-500 text-white hover:bg-blue-600',
-        variant === 'outline' && 'border-2 border-blue-500 text-blue-500 hover:bg-blue-50',
-        variant === 'ghost' && 'text-blue-500 hover:bg-blue-50',
+        'press-scale rounded-2xl px-5 py-4 font-bold text-base transition-opacity',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2',
+        'disabled:opacity-40 disabled:cursor-not-allowed',
+        variant === 'primary' && 'bg-blue-600 text-white',
+        variant === 'outline' && 'border-2 border-blue-600 text-blue-600',
+        variant === 'ghost' && 'text-blue-600',
         fullWidth && 'w-full',
         className
       )}

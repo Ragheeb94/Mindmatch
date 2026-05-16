@@ -39,6 +39,17 @@ const STEP_TITLES: Record<number, string> = {
   8: 'In-person or online?',
 }
 
+const STEP_SUBTITLES: Record<number, string> = {
+  1: "We'll use this to personalize your experience.",
+  2: 'We show you therapists near you.',
+  3: 'Choose everything that feels true.',
+  4: 'Choose all that apply.',
+  5: 'Who will be attending sessions?',
+  6: 'You can always change this later.',
+  7: 'Therapists with sliding scale are included even if over budget.',
+  8: 'You can do both — just let us know your preference.',
+}
+
 export function OnboardingWizard() {
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState<SurveyAnswers>(defaultAnswers)
@@ -105,16 +116,16 @@ export function OnboardingWizard() {
   if (confirmed) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center max-w-md mx-auto px-6 text-center gap-6">
-        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-3xl">
+        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-3xl" aria-hidden="true">
           📬
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Check your email</h1>
-          <p className="text-gray-500 text-sm mt-2">
+          <p className="text-gray-500 text-base mt-3 leading-relaxed">
             We sent a confirmation link to your email. Click it and you&apos;ll be taken to your matches.
           </p>
         </div>
-        <p className="text-xs text-gray-400">
+        <p className="text-sm text-gray-400">
           You can close this tab — just click the link in your email when you&apos;re ready.
         </p>
       </div>
@@ -123,26 +134,36 @@ export function OnboardingWizard() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
-      <div className="bg-blue-500 px-6 pt-6 pb-0">
-        <div className="flex justify-between items-center mb-3">
-          <button
-            onClick={back}
-            className="text-white/80 text-sm flex items-center gap-1 hover:text-white transition-colors"
-            aria-label="Go back"
-          >
-            ← Back
-          </button>
-          <span className="text-white/80 text-sm">Step {step} of {TOTAL_STEPS}</span>
-        </div>
-        <ProgressBar current={step} total={TOTAL_STEPS} />
-        <div className="py-5">
-          <h1 className="text-white text-xl font-bold">{STEP_TITLES[step]}</h1>
-        </div>
+
+      {/* Progress bar — at very top, no padding */}
+      <ProgressBar current={step} total={TOTAL_STEPS} />
+
+      {/* Nav row */}
+      <div className="flex justify-between items-center px-6 pt-6 pb-0">
+        <button
+          onClick={back}
+          className="text-gray-900 font-semibold text-sm flex items-center gap-1 py-2 pr-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+          aria-label="Go back"
+        >
+          ← Back
+        </button>
+        <span className="text-gray-400 text-sm" aria-live="polite">{step} of {TOTAL_STEPS}</span>
       </div>
 
-      <div className="flex-1 px-6 py-6 bg-blue-50">
+      {/* Question heading */}
+      <header className="px-6 pt-7 pb-1">
+        <h1 className="text-[1.75rem] font-bold text-gray-900 leading-tight">
+          {STEP_TITLES[step]}
+        </h1>
+        <p className="text-gray-500 text-base mt-2">
+          {STEP_SUBTITLES[step]}
+        </p>
+      </header>
+
+      {/* Step content */}
+      <div className="flex-1 px-6 py-6">
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+          <div role="alert" className="mb-5 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-sm font-medium">
             {error}
           </div>
         )}
