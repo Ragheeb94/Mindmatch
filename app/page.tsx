@@ -70,6 +70,12 @@ export default function LandingPage() {
           <p className="text-xs text-gray-400 text-center mt-1">
             Free for clients · Licensed therapists only
           </p>
+          <Link
+            href="/login"
+            className="text-sm text-gray-400 text-center mt-1 underline underline-offset-2"
+          >
+            Already have an account? Sign in
+          </Link>
         </footer>
 
       </main>

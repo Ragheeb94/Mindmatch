@@ -16,6 +16,9 @@ export function parseCrpoResponse(html: string): CrpoResult {
 }
 
 export async function verifyCrpoLicense(licenseNumber: string): Promise<CrpoResult> {
+  // Bypass for development — set CRPO_DEV_BYPASS=true in .env.local
+  if (process.env.CRPO_DEV_BYPASS === 'true') return 'verified'
+
   const sanitized = licenseNumber.trim()
   if (!/^[A-Za-z0-9\-]{1,20}$/.test(sanitized)) return 'rejected'
 

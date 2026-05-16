@@ -32,13 +32,14 @@ export async function POST(req: NextRequest) {
 
     if (error || !row) return NextResponse.json({ error: error?.message ?? 'Insert failed' }, { status: 500 })
 
-    // Trigger CRPO verification async
+    // Trigger CRPO verification — import directly to avoid self-fetch URL issues
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/crpo/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ licenseNumber, therapistId: row.id }),
-      })
+      const { verifyCrpoLicense } = await import('@/lib/crpo')
+      const crpoResult = await verifyCrpoLicense(licenseNumber ?? '')
+      await supabase
+        .from('therapist_profiles')
+        .update({ crpo_status: crpoResult })
+        .eq('id', row.id)
     } catch (_) {}
 
     return NextResponse.json({ ok: true, profileId: row.id })
