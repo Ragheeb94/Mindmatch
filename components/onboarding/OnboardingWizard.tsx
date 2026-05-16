@@ -80,7 +80,12 @@ export function OnboardingWizard() {
 
     const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
     if (signUpError || !data.user) {
-      setError(signUpError?.message ?? 'Sign up failed. Please try again.')
+      const msg = signUpError?.message ?? ''
+      setError(
+        msg.includes('rate limit')
+          ? 'Too many sign-up attempts. Please wait a few minutes and try again.'
+          : msg || 'Sign up failed. Please try again.'
+      )
       setSaving(false)
       return
     }
