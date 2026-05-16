@@ -13,7 +13,6 @@ import { BudgetStep } from './steps/BudgetStep'
 import { SessionTypeStep } from './steps/SessionTypeStep'
 import { createClient } from '@/lib/supabase/client'
 import type { SurveyAnswers } from '@/lib/types'
-import type { Json } from '@/lib/supabase/types'
 
 const TOTAL_STEPS = 8
 
@@ -86,22 +85,17 @@ export function OnboardingWizard() {
       return
     }
 
-    const { error: userError } = await supabase.from('users').insert({
-      id: data.user.id,
-      role: 'client',
-      first_name: answers.name,
+    const res = await fetch('/api/complete-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: data.user.id, name: answers.name, answers }),
     })
 
-    if (userError) {
-      setError('Account created but profile save failed. Please contact support.')
+    if (!res.ok) {
+      setError('Account created but profile save failed. Please try again.')
       setSaving(false)
       return
     }
-
-    await supabase.from('client_surveys').insert({
-      user_id: data.user.id,
-      answers: answers as unknown as Json,
-    })
 
     if (data.session) {
       router.push('/discover')
