@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { NameStep } from './steps/NameStep'
 import { CityStep } from './steps/CityStep'
@@ -49,8 +50,26 @@ const STEP_SUBTITLES: Record<number, string> = {
   8: 'You can do both — just let us know your preference.',
 }
 
+const STEP_EMOJIS: Record<number, string> = {
+  1: '👋',
+  2: '📍',
+  3: '💭',
+  4: '🌊',
+  5: '👥',
+  6: '💙',
+  7: '💰',
+  8: '📱',
+}
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 48 : -48, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit:  (dir: number) => ({ x: dir > 0 ? -48 : 48, opacity: 0 }),
+}
+
 export function OnboardingWizard() {
   const [step, setStep] = useState(1)
+  const [direction, setDirection] = useState(1)
   const [answers, setAnswers] = useState<SurveyAnswers>(defaultAnswers)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,6 +81,7 @@ export function OnboardingWizard() {
   }
 
   function next() {
+    setDirection(1)
     setStep(s => Math.min(s + 1, TOTAL_STEPS))
   }
 
@@ -69,6 +89,7 @@ export function OnboardingWizard() {
     if (step === 1) {
       router.push('/')
     } else {
+      setDirection(-1)
       setStep(s => s - 1)
     }
   }
@@ -114,10 +135,20 @@ export function OnboardingWizard() {
 
   if (confirmed) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center max-w-md mx-auto px-6 text-center gap-6">
-        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-3xl" aria-hidden="true">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="min-h-screen bg-white flex flex-col items-center justify-center max-w-md mx-auto px-6 text-center gap-6"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.1, type: 'spring', stiffness: 260, damping: 18 }}
+          className="text-7xl"
+          aria-hidden="true"
+        >
           📬
-        </div>
+        </motion.div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Check your email</h1>
           <p className="text-gray-500 text-base mt-3 leading-relaxed">
@@ -127,14 +158,12 @@ export function OnboardingWizard() {
         <p className="text-sm text-gray-400">
           You can close this tab — just click the link in your email when you&apos;re ready.
         </p>
-      </div>
+      </motion.div>
     )
   }
 
   return (
     <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
-
-      {/* Progress bar — at very top, no padding */}
       <ProgressBar current={step} total={TOTAL_STEPS} />
 
       {/* Nav row */}
@@ -149,38 +178,58 @@ export function OnboardingWizard() {
         <span className="text-gray-400 text-sm" aria-live="polite">{step} of {TOTAL_STEPS}</span>
       </div>
 
-      {/* Question heading */}
-      <header className="px-6 pt-7 pb-1">
-        <h1 className="text-[1.75rem] font-bold text-gray-900 leading-tight">
-          {STEP_TITLES[step]}
-        </h1>
-        <p className="text-gray-500 text-base mt-2">
-          {STEP_SUBTITLES[step]}
-        </p>
-      </header>
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={step}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+          className="flex flex-col"
+        >
+          {/* Step emoji + heading */}
+          <header className="px-6 pt-7 pb-1">
+            <div
+              key={`emoji-${step}`}
+              className="emoji-bounce text-4xl mb-3"
+              aria-hidden="true"
+            >
+              {STEP_EMOJIS[step]}
+            </div>
+            <h1 className="text-[1.75rem] font-bold text-gray-900 leading-tight">
+              {STEP_TITLES[step]}
+            </h1>
+            <p className="text-gray-500 text-base mt-2">
+              {STEP_SUBTITLES[step]}
+            </p>
+          </header>
 
-      {/* Step content */}
-      <div className="flex-1 px-6 py-6">
-        {error && (
-          <div role="alert" className="mb-5 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-sm font-medium">
-            {error}
+          {/* Step content */}
+          <div className="flex-1 px-6 py-6">
+            {error && (
+              <div role="alert" className="mb-5 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-sm font-medium">
+                {error}
+              </div>
+            )}
+            {step === 1 && <NameStep {...stepProps} />}
+            {step === 2 && <CityStep {...stepProps} />}
+            {step === 3 && <LifeAreasStep {...stepProps} />}
+            {step === 4 && <PatternsStep {...stepProps} />}
+            {step === 5 && <ParticipantsStep {...stepProps} />}
+            {step === 6 && <GenderStep {...stepProps} />}
+            {step === 7 && <BudgetStep {...stepProps} />}
+            {step === 8 && (
+              <SessionTypeStep
+                {...stepProps}
+                onFinish={finish}
+                saving={saving}
+              />
+            )}
           </div>
-        )}
-        {step === 1 && <NameStep {...stepProps} />}
-        {step === 2 && <CityStep {...stepProps} />}
-        {step === 3 && <LifeAreasStep {...stepProps} />}
-        {step === 4 && <PatternsStep {...stepProps} />}
-        {step === 5 && <ParticipantsStep {...stepProps} />}
-        {step === 6 && <GenderStep {...stepProps} />}
-        {step === 7 && <BudgetStep {...stepProps} />}
-        {step === 8 && (
-          <SessionTypeStep
-            {...stepProps}
-            onFinish={finish}
-            saving={saving}
-          />
-        )}
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
